@@ -34,6 +34,7 @@ model User {
   Note         Note[]
   Tag          Tag[]
   Question     Question[]
+  PersonalAccessToken PersonalAccessToken[]
 }
 
 model ApiKey {
@@ -63,11 +64,29 @@ model UserSettings {
 }
 
 model Profile {
-  id           String        @id @default(uuid())
+  id           String           @id @default(uuid())
   userId       String
-  user         User          @relation(fields: [userId], references: [id])
+  user         User             @relation(fields: [userId], references: [id])
   resumes      Resume[]
   coverLetters CoverLetter[]
+  sections     ProfileSection[]
+}
+
+// Free-form, extensible profile metadata (compensation, availability,
+// narrative answers, EEOC demographics). Kept as JSON blobs keyed by
+// section name so imports from answer-bank.yaml don't require schema
+// changes for every new question the bank adds.
+model ProfileSection {
+  id        String   @id @default(uuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([profileId, key])
+  @@index([profileId])
 }
 
 model Resume {
@@ -463,4 +482,23 @@ model Question {
   updatedAt DateTime @updatedAt
 
   @@index([createdBy])
+}
+
+// Personal Access Token for external clients (Claude Code skills, scripts).
+// Stored as a bcrypt hash; the plaintext is shown to the user exactly once
+// at creation time. Scopes are a JSON array of strings such as
+// "jobs:write" or "profile:read".
+model PersonalAccessToken {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  tokenHash  String    @unique
+  last8      String
+  scopes     String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  @@index([userId])
 }

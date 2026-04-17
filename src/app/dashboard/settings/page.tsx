@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AiSettings from "@/components/settings/AiSettings";
 import ApiKeySettings from "@/components/settings/ApiKeySettings";
+import PersonalAccessTokens from "@/components/settings/PersonalAccessTokens";
 import DisplaySettings from "@/components/settings/DisplaySettings";
 import SettingsSidebar, { type SettingsSection } from "@/components/settings/SettingsSidebar";
 
@@ -22,6 +23,7 @@ function Settings() {
         <div className="flex-1 min-w-0">
           {activeSection === "ai-provider" && <AiSettings />}
           {activeSection === "api-keys" && <ApiKeySettings />}
+          {activeSection === "personal-tokens" && <PersonalAccessTokens />}
           {activeSection === "appearance" && <DisplaySettings />}
         </div>
       </div>
