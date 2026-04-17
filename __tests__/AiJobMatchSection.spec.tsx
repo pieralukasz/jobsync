@@ -35,10 +35,6 @@ jest.mock("@/actions/userSettings.actions", () => ({
   }),
 }));
 
-jest.mock("@/utils/ai.utils", () => ({
-  checkOllamaConnection: jest.fn().mockResolvedValue({ isConnected: true }),
-}));
-
 const mockToast = jest.fn();
 jest.mock("@/components/ui/use-toast", () => ({
   toast: (...args: any[]) => mockToast(...args),

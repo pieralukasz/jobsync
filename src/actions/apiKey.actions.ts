@@ -158,27 +158,3 @@ export async function deleteApiKey(provider: string): Promise<{
   }
 }
 
-export async function getDefaultOllamaBaseUrl(): Promise<string> {
-  return process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
-}
-
-export async function getOllamaBaseUrl(): Promise<string> {
-  try {
-    const user = await getCurrentUser();
-    if (user) {
-      const apiKey = await db.apiKey.findUnique({
-        where: {
-          userId_provider: { userId: user.id, provider: "ollama" },
-        },
-      });
-      if (apiKey) {
-        if (apiKey.iv === "") return apiKey.encryptedKey;
-        const { decrypt } = await import("@/lib/encryption");
-        return decrypt(apiKey.encryptedKey, apiKey.iv);
-      }
-    }
-  } catch {
-    // Fall through to defaults
-  }
-  return process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
-}

@@ -10,7 +10,7 @@ import {
   SheetPortal,
   SheetTitle,
 } from "../ui/sheet";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Resume } from "@/models/profile.model";
 import { toast } from "../ui/use-toast";
 import {
@@ -30,8 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { Info, CheckCircle, XCircle } from "lucide-react";
-import { checkOllamaConnection } from "@/utils/ai.utils";
+import { Info } from "lucide-react";
 import { JobMatchSchema } from "@/models/ai.schemas";
 import { getUserSettings } from "@/actions/userSettings.actions";
 import { useSlowResponseWarning } from "@/hooks/useSlowResponseWarning";
@@ -51,8 +50,6 @@ export const AiJobMatchSection = ({
   onMatchSaved,
 }: AiSectionProps) => {
   const [selectedResumeId, setSelectedResumeId] = useState<string>();
-  const [ollamaConnected, setOllamaConnected] = useState<boolean | null>(null);
-  const [connectionError, setConnectionError] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<AiModel>(defaultModel);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const resumesRef = useRef<Resume[]>([]);
@@ -154,29 +151,13 @@ export const AiJobMatchSection = ({
     submit({ resumeId, jobId, selectedModel });
   };
 
-  const checkConnectionStatus = useCallback(async () => {
-    setOllamaConnected(null);
-    setConnectionError("");
-    const result = await checkOllamaConnection(selectedModel.provider);
-    if (result.isConnected) {
-      setOllamaConnected(true);
-    } else {
-      setOllamaConnected(false);
-      setConnectionError(result.error || "Ollama is not reachable.");
-    }
-  }, [selectedModel.provider]);
-
   const onOpenChange = async (openState: boolean) => {
     triggerChange(openState);
     if (!openState && isLoading) {
       stoppedByUserRef.current = true;
       stop();
     }
-    if (openState && selectedModel.provider === "ollama") {
-      await checkConnectionStatus();
-    } else if (!openState) {
-      setOllamaConnected(null);
-      setConnectionError("");
+    if (!openState) {
       setSelectedResumeId(undefined);
     }
   };
@@ -189,12 +170,6 @@ export const AiJobMatchSection = ({
   useEffect(() => {
     getResumes();
   }, []);
-
-  useEffect(() => {
-    if (aISectionOpen && selectedModel.provider === "ollama") {
-      checkConnectionStatus();
-    }
-  }, [aISectionOpen, selectedModel.provider, checkConnectionStatus]);
 
   // Check if we have any content to show
   const hasContent =
@@ -223,33 +198,12 @@ export const AiJobMatchSection = ({
             </SheetTitle>
           </SheetHeader>
 
-          {selectedModel.provider === "ollama" && (
-            <>
-              {ollamaConnected === true && (
-                <div className="flex items-center gap-1 text-green-600 text-sm mt-4">
-                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>Ollama is connected</span>
-                </div>
-              )}
-              {ollamaConnected === false && (
-                <div className="flex items-center gap-1 text-red-600 text-sm mt-4">
-                  <XCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>{connectionError}</span>
-                </div>
-              )}
-            </>
-          )}
-
           {!selectedResumeId && (
             <div className="mt-4">
               <Select
                 value={selectedResumeId}
                 onValueChange={onSelectResume}
-                disabled={
-                  isLoading ||
-                  isLoadingSettings ||
-                  (selectedModel.provider === "ollama" && ollamaConnected === false)
-                }
+                disabled={isLoading || isLoadingSettings}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a resume" />

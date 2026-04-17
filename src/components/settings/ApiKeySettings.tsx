@@ -24,20 +24,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { Loader2, Plus, Trash2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Loader2, Plus, Trash2, CheckCircle } from "lucide-react";
 import {
   getUserApiKeys,
   saveApiKey,
   deleteApiKey,
-  getDefaultOllamaBaseUrl,
 } from "@/actions/apiKey.actions";
 import type {
   ApiKeyClientResponse,
   ApiKeyProvider,
 } from "@/models/apiKey.model";
 import { getAiProviders } from "@/lib/ai/provider-registry";
-import { AiProvider } from "@/models/ai.model";
-import { checkOllamaConnection } from "@/utils/ai.utils";
 
 interface ProviderConfig {
   id: ApiKeyProvider;
@@ -70,29 +67,15 @@ const PROVIDERS: ProviderConfig[] = [
 function ApiKeySettings() {
   const [keys, setKeys] = useState<ApiKeyClientResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [defaultOllamaUrl, setDefaultOllamaUrl] = useState(
-    "http://127.0.0.1:11434",
-  );
   const [editingProvider, setEditingProvider] = useState<ApiKeyProvider | null>(
     null,
   );
   const [inputValue, setInputValue] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [ollamaConnected, setOllamaConnected] = useState<boolean | null>(null);
-  const [ollamaChecking, setOllamaChecking] = useState(false);
-
-  const recheckOllamaConnection = async () => {
-    setOllamaChecking(true);
-    const result = await checkOllamaConnection(AiProvider.OLLAMA);
-    setOllamaConnected(result.isConnected);
-    setOllamaChecking(false);
-  };
 
   useEffect(() => {
     fetchKeys();
-    getDefaultOllamaBaseUrl().then(setDefaultOllamaUrl);
-    recheckOllamaConnection();
   }, []);
 
   const fetchKeys = async () => {
@@ -111,11 +94,6 @@ function ApiKeySettings() {
 
   const getKeyForProvider = (provider: ApiKeyProvider) =>
     keys.find((k) => k.provider === provider);
-
-  const isBaseUrlProvider = (providerId: string) => {
-    const entry = getAiProviders().find((e) => e.id === providerId);
-    return entry?.credentialType === "base-url";
-  };
 
   const handleVerifyAndSave = async (provider: ApiKeyProvider) => {
     if (!inputValue.trim()) return;
@@ -233,7 +211,6 @@ function ApiKeySettings() {
         {PROVIDERS.map((provider) => {
           const existingKey = getKeyForProvider(provider.id);
           const isEditing = editingProvider === provider.id;
-          const isBaseUrl = isBaseUrlProvider(provider.id);
 
           return (
             <Card key={provider.id}>
@@ -243,11 +220,6 @@ function ApiKeySettings() {
                     <CardTitle className="text-base">{provider.name}</CardTitle>
                     <CardDescription className="text-sm">
                       {provider.description}
-                      {isBaseUrl && (
-                        <span className="block text-xs text-muted-foreground/70 mt-0.5">
-                          Default: {provider.id === "ollama" ? defaultOllamaUrl : provider.placeholder}
-                        </span>
-                      )}
                     </CardDescription>
                   </div>
                   {existingKey ? (
@@ -262,52 +234,15 @@ function ApiKeySettings() {
                   )}
                 </div>
               </CardHeader>
-              {provider.id === "ollama" && (
-                <div className="px-6 pb-3">
-                  <div className="flex items-center gap-2">
-                    {ollamaChecking ? (
-                      <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        <span>Checking...</span>
-                      </div>
-                    ) : ollamaConnected === true ? (
-                      <div className="flex items-center gap-1 text-green-600 text-sm">
-                        <CheckCircle className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span>Ollama is running</span>
-                      </div>
-                    ) : ollamaConnected === false ? (
-                      <div className="flex items-center gap-1 text-red-600 text-sm">
-                        <XCircle className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span>Ollama is not running</span>
-                      </div>
-                    ) : null}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 w-6 p-0"
-                      onClick={recheckOllamaConnection}
-                      disabled={ollamaChecking}
-                    >
-                      <RefreshCw className={`h-3.5 w-3.5 ${ollamaChecking ? "animate-spin" : ""}`} />
-                    </Button>
-                  </div>
-                </div>
-              )}
               <CardContent>
                 {isEditing ? (
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor={`key-${provider.id}`}>
-                        {isBaseUrl ? "Base URL" : "API Key"}
-                      </Label>
+                      <Label htmlFor={`key-${provider.id}`}>API Key</Label>
                       <Input
                         id={`key-${provider.id}`}
                         type={provider.inputType}
-                        placeholder={
-                          isBaseUrl && provider.id === "ollama"
-                            ? defaultOllamaUrl
-                            : provider.placeholder
-                        }
+                        placeholder={provider.placeholder}
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         className="mt-1"

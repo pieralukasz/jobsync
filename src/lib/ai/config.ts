@@ -43,11 +43,6 @@ export const RETRY = {
 
 // TEXT LIMITS (for prompts)
 export const TEXT_LIMITS = {
-  /** Character limit for Ollama (local models) */
-  OLLAMA: {
-    RESUME: 1500,
-    JOB: 1200,
-  },
   /** Character limit for cloud providers */
   CLOUD: {
     RESUME: 4000,

@@ -1,7 +1,7 @@
 "use client";
 
 import { experimental_useObject as useObject } from "@ai-sdk/react";
-import { Info, Sparkles, CheckCircle, XCircle } from "lucide-react";
+import { Info, Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -23,7 +23,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { checkOllamaConnection } from "@/utils/ai.utils";
 import { ResumeReviewSchema } from "@/models/ai.schemas";
 import { getUserSettings } from "@/actions/userSettings.actions";
 import { useSlowResponseWarning } from "@/hooks/useSlowResponseWarning";
@@ -35,8 +34,6 @@ interface AiSectionProps {
 
 const AiResumeReviewSection = ({ resume }: AiSectionProps) => {
   const [aISectionOpen, setAiSectionOpen] = useState(false);
-  const [ollamaConnected, setOllamaConnected] = useState<boolean | null>(null);
-  const [connectionError, setConnectionError] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<AiModel>(defaultModel);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
@@ -90,20 +87,6 @@ const AiResumeReviewSection = ({ resume }: AiSectionProps) => {
     setAiSectionOpen(openState);
     if (!openState && isLoading) {
       stop();
-    } else if (openState && selectedModel.provider === "ollama") {
-      await checkConnectionStatus();
-    }
-  };
-
-  const checkConnectionStatus = async () => {
-    setOllamaConnected(null);
-    setConnectionError("");
-    const result = await checkOllamaConnection(selectedModel.provider);
-    if (result.isConnected) {
-      setOllamaConnected(true);
-    } else {
-      setOllamaConnected(false);
-      setConnectionError(result.error || "Ollama is not reachable.");
     }
   };
 
@@ -149,33 +132,13 @@ const AiResumeReviewSection = ({ resume }: AiSectionProps) => {
             </SheetTitle>
           </SheetHeader>
 
-          {selectedModel.provider === "ollama" && (
-            <>
-              {ollamaConnected === true && (
-                <div className="flex items-center gap-1 text-green-600 text-sm mt-4">
-                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>Ollama is connected</span>
-                </div>
-              )}
-              {ollamaConnected === false && (
-                <div className="flex items-center gap-1 text-red-600 text-sm mt-4">
-                  <XCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>{connectionError}</span>
-                </div>
-              )}
-            </>
-          )}
-
           <div className="mt-4">
             <Button
               size="sm"
               variant="outline"
               className="h-8 gap-1 cursor-pointer"
               onClick={getResumeReview}
-              disabled={
-                isLoading ||
-                (selectedModel.provider === "ollama" && ollamaConnected === false)
-              }
+              disabled={isLoading}
             >
               <Sparkles className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">

@@ -19,10 +19,10 @@ import {
 } from "@/lib/ai";
 import {
   AiProvider,
-  OllamaModel,
   OpenaiModel,
   DeepseekModel,
   GeminiModel,
+  OpenRouterModel,
 } from "@/models/ai.model";
 import type { Resume as PrismaResume } from "@prisma/client";
 import { automationLogger } from "@/lib/automation-logger";
@@ -36,8 +36,6 @@ const MAX_JOBS_PER_RUN = 10;
 
 function getDefaultModelForProvider(provider: AiProvider): string {
   switch (provider) {
-    case AiProvider.OLLAMA:
-      return OllamaModel.LLAMA3_2;
     case AiProvider.OPENAI:
       return OpenaiModel.GPT4O_MINI;
     case AiProvider.DEEPSEEK:
@@ -45,7 +43,7 @@ function getDefaultModelForProvider(provider: AiProvider): string {
     case AiProvider.GEMINI:
       return GeminiModel.GEMINI_2_0_FLASH;
     case AiProvider.OPENROUTER:
-      return "anthropic/claude-3.5-sonnet";
+      return OpenRouterModel.CLAUDE_SONNET_4_5;
   }
 }
 

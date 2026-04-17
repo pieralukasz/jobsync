@@ -5,7 +5,6 @@ jest.mock("server-only", () => ({}));
 jest.mock("@ai-sdk/openai", () => ({ createOpenAI: jest.fn() }));
 jest.mock("@ai-sdk/deepseek", () => ({ createDeepSeek: jest.fn() }));
 jest.mock("@ai-sdk/google", () => ({ createGoogleGenerativeAI: jest.fn() }));
-jest.mock("ollama-ai-provider-v2", () => ({ createOllama: jest.fn() }));
 
 import { createOpenAI } from "@ai-sdk/openai";
 import {

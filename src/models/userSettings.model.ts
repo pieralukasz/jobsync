@@ -21,7 +21,7 @@ export interface UserSettings {
 
 export const defaultUserSettings: UserSettingsData = {
   ai: {
-    provider: AiProvider.OLLAMA,
+    provider: AiProvider.OPENROUTER,
     model: undefined,
   },
   display: {

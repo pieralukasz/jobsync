@@ -1,7 +1,6 @@
 import "server-only";
 
 import { createOpenAI } from "@ai-sdk/openai";
-import { createOllama } from "ollama-ai-provider-v2";
 import { createDeepSeek } from "@ai-sdk/deepseek";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
@@ -13,8 +12,6 @@ export const PROVIDER_FACTORIES: Record<
   openrouter: (apiKey, model) =>
     createOpenAI({ apiKey, baseURL: "https://openrouter.ai/api/v1" })(model),
   deepseek: (apiKey, model) => createDeepSeek({ apiKey })(model),
-  ollama: (baseURL, model) =>
-    createOllama({ baseURL: baseURL + "/api" })(model),
   gemini: (apiKey, model) => createGoogleGenerativeAI({ apiKey })(model),
 };
 
@@ -63,17 +60,6 @@ export const PROVIDER_VERIFIERS: Record<
           res.status === 401
             ? "Invalid API key"
             : `DeepSeek returned ${res.status}`,
-      };
-    return { success: true };
-  },
-
-  ollama: async (key) => {
-    const baseUrl = key.replace(/\/+$/, "");
-    const res = await fetch(`${baseUrl}/api/tags`);
-    if (!res.ok)
-      return {
-        success: false,
-        error: `Cannot connect to Ollama at ${baseUrl}`,
       };
     return { success: true };
   },

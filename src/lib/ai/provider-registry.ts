@@ -21,25 +21,6 @@ export interface ProviderRegistryEntry {
 }
 
 export const PROVIDER_REGISTRY: Record<string, ProviderRegistryEntry> = {
-  ollama: {
-    id: "ollama",
-    displayName: "Ollama",
-    credentialType: "base-url",
-    category: "local",
-    envVar: "OLLAMA_BASE_URL",
-    defaultCredential: "http://127.0.0.1:11434",
-    modelsEndpoint: "ollama/tags",
-    parseModelsResponse: (data) => data.models?.map((m: any) => m.name) ?? [],
-    requiresRunningCheck: false,
-    supportsKeepAlive: true,
-    keyConfig: {
-      placeholder: "http://127.0.0.1:11434",
-      inputType: "text",
-      description: "Base URL for your Ollama instance",
-      sensitive: false,
-    },
-  },
-
   openai: {
     id: "openai",
     displayName: "OpenAI",
@@ -117,7 +98,7 @@ export const PROVIDER_REGISTRY: Record<string, ProviderRegistryEntry> = {
   },
 };
 
-export const AI_PROVIDERS = ["ollama", "openai", "deepseek", "openrouter", "gemini"] as const;
+export const AI_PROVIDERS = ["openrouter", "openai", "deepseek", "gemini"] as const;
 export type AiProviderId = (typeof AI_PROVIDERS)[number];
 
 export function getAiProviders(): ProviderRegistryEntry[] {

@@ -21,17 +21,10 @@ export interface AiModel {
 
 // Provider enum - extensible for future providers
 export enum AiProvider {
-  OLLAMA = "ollama",
   OPENAI = "openai",
   DEEPSEEK = "deepseek",
   GEMINI = "gemini",
   OPENROUTER = "openrouter",
-}
-
-// Default models per provider
-export enum OllamaModel {
-  LLAMA3_1 = "llama3.1",
-  LLAMA3_2 = "llama3.2",
 }
 
 export enum OpenaiModel {
@@ -52,7 +45,14 @@ export enum GeminiModel {
   GEMINI_1_5_FLASH = "gemini-1.5-flash",
 }
 
+export enum OpenRouterModel {
+  CLAUDE_SONNET_4_5 = "anthropic/claude-sonnet-4.5",
+  CLAUDE_HAIKU_4_5 = "anthropic/claude-haiku-4-5",
+  GPT_4O_MINI = "openai/gpt-4o-mini",
+  GEMINI_2_5_FLASH = "google/gemini-2.5-flash",
+}
+
 export const defaultModel: AiModel = {
-  provider: AiProvider.OLLAMA,
-  model: OllamaModel.LLAMA3_1,
+  provider: AiProvider.OPENROUTER,
+  model: OpenRouterModel.CLAUDE_SONNET_4_5,
 };

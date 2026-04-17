@@ -7,6 +7,7 @@ import {
   OpenaiModel,
   DeepseekModel,
   GeminiModel,
+  OpenRouterModel,
 } from "@/models/ai.model";
 import {
   PROVIDER_REGISTRY,
@@ -24,7 +25,6 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { toast } from "../ui/use-toast";
 import { XCircle, Loader2 } from "lucide-react";
-import { checkOllamaConnection } from "@/utils/ai.utils";
 import { getUserSettings, updateAiSettings } from "@/actions/userSettings.actions";
 
 function AiSettings() {
@@ -79,6 +79,8 @@ function AiSettings() {
         return Object.values(DeepseekModel);
       case AiProvider.GEMINI:
         return Object.values(GeminiModel);
+      case AiProvider.OPENROUTER:
+        return Object.values(OpenRouterModel);
       default:
         return [];
     }
@@ -102,23 +104,12 @@ function AiSettings() {
 
     (async () => {
       try {
-        if (entry.category === "local") {
-          const connResult = await checkOllamaConnection(selectedModel.provider as AiProvider);
-          if (!connResult.isConnected) {
-            if (!cancelled) {
-              setFetchedModels(fallback);
-              setConnectionError(connResult.error || "Ollama is not reachable.");
-            }
-            return;
-          }
-        }
         const response = await fetch(`/api/ai/${entry.modelsEndpoint}`);
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
-          const errorMsg = errorData?.error
-            || (entry.category === "local"
-              ? `Failed to fetch ${entry.displayName} models. Make sure ${entry.displayName} is running.`
-              : `Failed to fetch ${entry.displayName} models. Please check your API key in API Keys settings.`);
+          const errorMsg =
+            errorData?.error ||
+            `Failed to fetch ${entry.displayName} models. Please check your API key in API Keys settings.`;
           if (!cancelled) {
             setFetchError(errorMsg);
             setFetchedModels(fallback);
@@ -135,9 +126,7 @@ function AiSettings() {
         if (!cancelled) {
           setFetchedModels(fallback);
           setFetchError(
-            entry.category === "local"
-              ? `Failed to fetch ${entry.displayName} models. Make sure ${entry.displayName} is running.`
-              : `Failed to fetch ${entry.displayName} models. Please check your API key in API Keys settings.`,
+            `Failed to fetch ${entry.displayName} models. Please check your API key in API Keys settings.`,
           );
         }
       } finally {

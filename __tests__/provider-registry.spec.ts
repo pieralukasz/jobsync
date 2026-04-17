@@ -5,20 +5,23 @@ describe("AI_PROVIDERS", () => {
     expect(AI_PROVIDERS).toContain("openrouter");
   });
 
-  it("contains exactly 5 providers", () => {
-    expect(AI_PROVIDERS).toHaveLength(5);
+  it("contains exactly 4 providers", () => {
+    expect(AI_PROVIDERS).toHaveLength(4);
   });
 
-  it("contains ollama, openai, deepseek, openrouter, gemini", () => {
+  it("contains openrouter, openai, deepseek, gemini", () => {
     expect(AI_PROVIDERS).toEqual(
       expect.arrayContaining([
-        "ollama",
+        "openrouter",
         "openai",
         "deepseek",
-        "openrouter",
         "gemini",
       ]),
     );
+  });
+
+  it("does not contain ollama", () => {
+    expect(AI_PROVIDERS).not.toContain("ollama");
   });
 });
 

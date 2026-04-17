@@ -8,7 +8,6 @@ jest.mock("@/lib/ai/provider-registry.server", () => ({
     openrouter: jest.fn(),
     openai: jest.fn(),
     deepseek: jest.fn(),
-    ollama: jest.fn(),
     gemini: jest.fn(),
   },
 }));
